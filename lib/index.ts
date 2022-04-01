@@ -9,15 +9,14 @@ import { Logger } from './logger';
 
 /**
  * todo
- * 1) Конфиг
- * 2) Исключения в конфиге
- * 3) Путь к папке для сканирова
+ * 1) Конфиг (Путь к папке для сканирова, Исключения в конфиге)
  * 4) Читать наш package.json
- * 5) 2402 & 24feb
+ * 5) Осуществить доставку этого в npm
+ * 6) Выставить CLI интерфейс
  */
 
-// const pattern = path.join(process.cwd(), '..', 'cushion_webapp_ui/node_modules/**');
-const pattern = 'node_modules/**';
+const pattern = path.join(process.cwd(), '..', 'cushion_webapp_ui/node_modules/**');
+// const pattern = 'node_modules/**';
 
 (async () => {
   const toxicRepos = await getToxicRepos();
