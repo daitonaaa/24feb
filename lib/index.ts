@@ -4,19 +4,22 @@ import { getToxicRepos } from './toxic-repos';
 import { Reader } from './reader';
 import { readFileAsString, readJsonByPath, safe } from './utils';
 import { Report } from './report';
-import path from 'path';
 import { Logger } from './logger';
+import { Configuration } from '../config';
 
 /**
  * todo
- * 1) Конфиг (Путь к папке для сканирова, Исключения в конфиге)
  * 4) Читать наш package.json
  * 5) Осуществить доставку этого в npm
  * 6) Выставить CLI интерфейс
  */
 
-const pattern = path.join(process.cwd(), '..', 'cushion_webapp_ui/node_modules/**');
-// const pattern = 'node_modules/**';
+/*
+* Инициализация конфигурации
+*/
+const packageConf = new Configuration();
+const pattern = packageConf.rootReviewDir;
+const symbolsReview = packageConf.symbolsReview;
 
 (async () => {
   const toxicRepos = await getToxicRepos();
@@ -53,9 +56,12 @@ const pattern = path.join(process.cwd(), '..', 'cushion_webapp_ui/node_modules/*
         });
       }
     })
-    .addMatcher(/./gm, async path => {
+
+  if (symbolsReview.length > 0) {
+    reader.addMatcher(/./gm, async path => {
+      // TODO: добавить проверку path на отсутствие в blackList
       const file = await readFileAsString(path);
-      const blackList = ['🇷🇺', '🇺🇦'];
+      const blackList = symbolsReview;
       if (blackList.some(flag => file.includes(flag))) {
         report.addItem({
           path: path,
@@ -64,6 +70,7 @@ const pattern = path.join(process.cwd(), '..', 'cushion_webapp_ui/node_modules/*
         });
       }
     });
+  }
 
   glob(pattern, { debug: true }, async function (_, candidates) {
     const onlyFiles = candidates.filter(candidate => fs.lstatSync(candidate).isFile());

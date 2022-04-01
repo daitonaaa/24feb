@@ -1,0 +1,16 @@
+{
+  "directories": {
+    "root": "node_modules/**",
+    "packages": {
+      "whiteList": null,
+      "blackList": null
+    },
+    "symbols": {
+      "whiteList": null,
+      "blackList": null
+    }
+  },
+  "review": {
+    "symbols": ["🇷🇺", "🇺🇦"]
+  }
+}

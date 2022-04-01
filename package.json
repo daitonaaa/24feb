@@ -14,7 +14,7 @@
     "typescript": "^4.6.3"
   },
   "scripts": {
-    "start": "rimraf build && tsc && node build/index.js"
+    "start": "rimraf build && tsc && node build/lib/index.js"
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
