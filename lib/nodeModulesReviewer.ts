@@ -8,12 +8,6 @@ import { Logger } from './logger';
 import { Configuration } from '../config';
 import { CommandTypes } from './types';
 
-/**
- * todo
- * 4) Читать наш package.json
- * 5) Осуществить доставку этого в npm
- */
-
 export class NodeModulesCheck {
   constructor(private readonly packageConf: Configuration) { }
 
@@ -38,6 +32,8 @@ export class NodeModulesCheck {
     const toxicReposNames = [...toxicRepos.keys()];
     const pattern = this.packageConf.rootReviewDir;
     const symbolsReview = this.packageConf.symbolsReview;
+    const symbolsReviewBlackList = this.packageConf.symbolsReviewBlackList;
+    const packagesReviewWhiteList = this.packageConf.packagesReviewWhiteList;
 
     const report = new Report();
     const reader = new Reader(new Logger('Reader'));
@@ -73,14 +69,25 @@ export class NodeModulesCheck {
 
     if (symbolsReview.length > 0) {
       reader.addMatcher(/./gm, async path => {
-        // TODO: добавить проверку path на отсутствие в blackList
+        for (const blackListPath of symbolsReviewBlackList) {
+          const regex = new RegExp(blackListPath);
+          if (regex.test(path)) {
+            return;
+          }
+        }
+
         const file = await readFileAsString(path);
-        const blackList = symbolsReview;
-        if (blackList.some(flag => file.includes(flag))) {
+        const match = symbolsReview.reduce((acc, flag) => {
+          if (!acc && file.includes(flag)) {
+            acc += `${flag}, `;
+          }
+          return acc;
+        }, '')
+        if (match) {
           report.addItem({
             path: path,
             reason: `Found black list item`,
-            comment: ``,
+            comment: match,
           });
         }
       });
@@ -88,6 +95,9 @@ export class NodeModulesCheck {
 
     glob(pattern, { debug: true }, async function (_, candidates) {
       const onlyFiles = candidates.filter(candidate => fs.lstatSync(candidate).isFile());
+      if (packagesReviewWhiteList) {
+        onlyFiles.push(...packagesReviewWhiteList);
+      }
       reader.setPaths(onlyFiles);
       await reader.applyMatchers();
       if (report.hasItems()) {

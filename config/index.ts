@@ -66,6 +66,26 @@ export class Configuration {
     ) {
       throw Error(`Символы к проверке должны указываться как строки`);
     }
+
+    if (config.directories.whiteList && !Array.isArray(config.directories.whiteList)) {
+      throw Error(`Дополнительные пути для проверки должны указываться как массив, тип ${typeof config.directories.whiteList}`);
+    }
+
+    if (config.directories.whiteList &&
+      Array.isArray(config.directories.whiteList &&
+        config.directories.whiteList.some(s => typeof s !== "string"))) {
+      throw Error(`Дополнительные пути должны содержать только строки`);
+    }
+
+    if (config.directories.blackList?.symbols && !Array.isArray(config.directories.blackList.symbols)) {
+      throw Error(`Черный список путей должен указываться как массив, тип ${typeof config.directories.blackList.symbols}`);
+    }
+
+    if (config.directories.blackList?.symbols &&
+      Array.isArray(config.directories.blackList.symbols &&
+        config.directories.blackList.symbols.some(s => typeof s !== "string"))) {
+      throw Error(`Черный список путей должен содержать только строки`);
+    }
   }
 
   /**
@@ -79,6 +99,20 @@ export class Configuration {
    * Список символов, наличие которых необходимо проверить
    */
   get symbolsReview() {
-    return this.config?.review?.symbols || [];
+    return this.config.review?.symbols || [];
+  }
+
+  /**
+   * Пути для символов, которые нужно исключить из проверки
+   */
+  get symbolsReviewBlackList() {
+    return this.config.directories.blackList?.symbols || [];
+  }
+
+  /**
+   * Пути для файлов и папок, которые нужно добавить в проверку
+   */
+  get packagesReviewWhiteList() {
+    return this.config.directories.whiteList || [];
   }
 }

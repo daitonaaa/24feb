@@ -1,12 +1,12 @@
 {
   "name": "node-scan-dir",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "main": "lib/index.ts",
   "license": "MIT",
   "dependencies": {
     "@types/chalk": "^2.2.0",
     "axios": "^0.26.1",
-    "chalk": "^5.0.1",
+    "chalk": "4.1.2",
     "es5-ext": "^0.10.59",
     "glob": "^7.2.0",
     "prettier": "^2.6.1",
@@ -18,7 +18,7 @@
     "24feb": "bin/24feb.js"
   },
   "scripts": {
-    "start": "rimraf build && tsc && node build/lib/index.js",
+    "start": "rimraf build && tsc && node build/lib/index.js start",
     "postinstall": "rimraf build && tsc"
   },
   "devDependencies": {
