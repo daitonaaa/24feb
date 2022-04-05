@@ -1,0 +1,6 @@
+{
+  "rootDir": "node_modules/**",
+  "ignorePatterns": [],
+  "extraPaths": [],
+  "charsForCheck": ["🇷🇺", "🇺🇦"]
+}

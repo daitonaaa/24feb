@@ -6,7 +6,7 @@ export class Reader {
   matchers: [RegExp, ReaderMatcher][] = [];
   filePaths: string[] = [];
 
-  constructor(private readonly logger: Logger) {}
+  constructor(private readonly logger: Logger) { }
 
   setPaths(paths: string[]) {
     this.filePaths = paths;
