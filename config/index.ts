@@ -1,18 +1,18 @@
 import fs from 'fs';
 import path from 'path';
-import { ConfigurationParameters } from './types';
+import { ConfigType } from './types';
 
 export class Configuration {
-  private readonly defaultConfig: ConfigurationParameters;
-  private readonly applicationConfig: ConfigurationParameters | undefined;
+  private readonly defaultConfig: ConfigType;
+  private readonly applicationConfig: ConfigType | undefined;
 
   constructor() {
-    var appConfPath = path.resolve(process.cwd(), 'config24feb.json');
-    var defaultConfPath = path.resolve(__dirname, '../../', 'defaultConf.json');
-    var defaultConfRawData = fs.readFileSync(defaultConfPath, {
+    const appConfPath = path.resolve(process.cwd(), 'config24feb.json');
+    const defaultConfPath = path.resolve(__dirname, 'config.default.json');
+    const defaultConfRawData = fs.readFileSync(defaultConfPath, {
       encoding: 'utf8'
     });
-    var appConfRawData;
+    let appConfRawData;
 
     try {
       if (fs.existsSync(appConfPath)) {
@@ -21,14 +21,14 @@ export class Configuration {
         });
       }
     } catch (e) {
-      console.error("Не смогли файл конфигурации", e);
+      console.error("Не удалось найти файл конфигурации", e);
     }
 
     try {
       this.applicationConfig = appConfRawData && JSON.parse(appConfRawData);
       this.defaultConfig = JSON.parse(defaultConfRawData);
     } catch (e) {
-      console.error("Не смогли прочитать JSON", e);
+      console.error("Не удалось прочитать JSON", e);
     }
   }
 
@@ -42,48 +42,37 @@ export class Configuration {
     return this.defaultConfig;
   }
 
-  private checkConfig(config: ConfigurationParameters) {
+  private checkConfig(config: ConfigType) {
     if (!config) {
       throw Error('Отсутствует файл конфигурации');
     }
 
-    if (!config.directories) {
-      throw Error('Отсутствуют конфигурации директорий, => directories');
-    }
 
-    if (!config.directories.root) {
+    if (!config.rootDir) {
       throw Error('Отсутствует путь для проверки npm пакетов, => directories.root');
     }
 
-    if (config?.review?.symbols && !Array.isArray(config.review.symbols)) {
-      throw Error(`Символы к проверке должны указываться как массив, тип ${typeof config.review.symbols}`);
+    if (!Array.isArray(config.charsForCheck)) {
+      throw Error(`Символы к проверке должны указываться как массив, тип ${typeof config.charsForCheck}`);
     }
 
-    if (
-      config?.review?.symbols &&
-      Array.isArray(config.review.symbols) &&
-      config.review.symbols.some(s => typeof s !== "string")
-    ) {
+    if (Array.isArray(config.charsForCheck) && config.charsForCheck.some(s => typeof s !== "string")) {
       throw Error(`Символы к проверке должны указываться как строки`);
     }
 
-    if (config.directories.whiteList && !Array.isArray(config.directories.whiteList)) {
-      throw Error(`Дополнительные пути для проверки должны указываться как массив, тип ${typeof config.directories.whiteList}`);
+    if (!Array.isArray(config.extraPaths)) {
+      throw Error(`Дополнительные пути для проверки должны указываться как массив, тип ${typeof config.extraPaths}`);
     }
 
-    if (config.directories.whiteList &&
-      Array.isArray(config.directories.whiteList &&
-        config.directories.whiteList.some(s => typeof s !== "string"))) {
+    if (Array.isArray(config.extraPaths) && config.extraPaths.some(s => typeof s !== "string")) {
       throw Error(`Дополнительные пути должны содержать только строки`);
     }
 
-    if (config.directories.blackList?.symbols && !Array.isArray(config.directories.blackList.symbols)) {
-      throw Error(`Черный список путей должен указываться как массив, тип ${typeof config.directories.blackList.symbols}`);
+    if (!Array.isArray(config.ignorePatterns)) {
+      throw Error(`Черный список путей должен указываться как массив, тип ${typeof config.ignorePatterns}`);
     }
 
-    if (config.directories.blackList?.symbols &&
-      Array.isArray(config.directories.blackList.symbols &&
-        config.directories.blackList.symbols.some(s => typeof s !== "string"))) {
+    if (Array.isArray(config.ignorePatterns) && config.ignorePatterns.some(s => typeof s !== "string")) {
       throw Error(`Черный список путей должен содержать только строки`);
     }
   }
@@ -91,28 +80,28 @@ export class Configuration {
   /**
    * Директория, которую необходимо проверить, как правило node_modules
    */
-  get rootReviewDir() {
-    return this.config.directories.root;
+  get rootDir() {
+    return this.config.rootDir;
   }
 
   /**
    * Список символов, наличие которых необходимо проверить
    */
-  get symbolsReview() {
-    return this.config.review?.symbols || [];
+  get charsForCheck() {
+    return this.config.charsForCheck || [];
   }
 
   /**
    * Пути для символов, которые нужно исключить из проверки
    */
-  get symbolsReviewBlackList() {
-    return this.config.directories.blackList?.symbols || [];
+  get ignorePatterns() {
+    return this.config.ignorePatterns || [];
   }
 
   /**
    * Пути для файлов и папок, которые нужно добавить в проверку
    */
-  get packagesReviewWhiteList() {
-    return this.config.directories.whiteList || [];
+  get extraPaths() {
+    return this.config.extraPaths || [];
   }
 }

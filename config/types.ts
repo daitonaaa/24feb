@@ -1,15 +1,6 @@
-export interface ConfigurationParameters {
-  directories: {
-    root: string;
-    whiteList?: PathLists,
-    blackList?: {
-      symbols?: PathLists,
-    }
-  },
-  review?: {
-    symbols?: string[],
-  }
+export interface ConfigType {
+  rootDir: string;
+  ignorePatterns: RegExp[];
+  extraPaths: string[];
+  charsForCheck: string[];
 }
-
-type PathLists = string[] | null;
-

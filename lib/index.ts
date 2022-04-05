@@ -1,7 +1,7 @@
 import { argv } from 'yargs';
 import { Configuration } from '../config';
-import { NodeModulesCheck } from './nodeModulesReviewer';
+import { App } from './app';
 
-const application = new NodeModulesCheck(new Configuration());
+const application = new App(new Configuration());
 
 application.command(argv);

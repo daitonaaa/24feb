@@ -13,23 +13,17 @@ $ npm install node-scan-dir
 Для настройки необходимо в папке проекта (там где package.json) разместить файл config24feb.json
 
 Если файла нет, то будут использованы базовые настройки:
-"root": "node_modules/\*\*",
-"symbols": ["🇷🇺", "🇺🇦"]
+"rootDir": "node_modules/\*\*",
+"charsForCheck": ["🇷🇺", "🇺🇦"]
 остальные параметры со значением null (не применяются при проверке)
 
 ### example
 
 ```json
 {
-  "directories": {
-    "root": "node_modules/**",
-    "whiteList": ["config24feb.json"],
-    "blackList": {
-      "symbols": ["node_modules/es5-ext/_postinstall.js"]
-    }
-  },
-  "review": {
-    "symbols": ["🇷🇺", "🇺🇦"]
-  }
+  "rootDir": "node_modules/**",
+  "charsForCheck": ["🇷🇺", "🇺🇦"],
+  "ignorePatterns": ["node_modules/es5-ext/_postinstall.js"],
+  "extraPaths": ["config24feb.json"]
 }
 ```

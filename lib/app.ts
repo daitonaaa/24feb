@@ -8,8 +8,8 @@ import { Logger } from './logger';
 import { Configuration } from '../config';
 import { CommandTypes } from './types';
 
-export class NodeModulesCheck {
-  constructor(private readonly packageConf: Configuration) { }
+export class App {
+  constructor(private readonly config: Configuration) { }
 
   async command(cmd: { [x: string]: any }) {
     const cArr = cmd._;
@@ -30,10 +30,10 @@ export class NodeModulesCheck {
   private async run() {
     const toxicRepos = await getToxicRepos();
     const toxicReposNames = [...toxicRepos.keys()];
-    const pattern = this.packageConf.rootReviewDir;
-    const symbolsReview = this.packageConf.symbolsReview;
-    const symbolsReviewBlackList = this.packageConf.symbolsReviewBlackList;
-    const packagesReviewWhiteList = this.packageConf.packagesReviewWhiteList;
+    const pattern = this.config.rootDir;
+    const charsForCheck = this.config.charsForCheck;
+    const ignorePatterns = this.config.ignorePatterns;
+    const extraPaths = this.config.extraPaths;
 
     const report = new Report();
     const reader = new Reader(new Logger('Reader'));
@@ -67,9 +67,9 @@ export class NodeModulesCheck {
         }
       })
 
-    if (symbolsReview.length > 0) {
+    if (charsForCheck.length > 0) {
       reader.addMatcher(/./gm, async path => {
-        for (const blackListPath of symbolsReviewBlackList) {
+        for (const blackListPath of ignorePatterns) {
           const regex = new RegExp(blackListPath);
           if (regex.test(path)) {
             return;
@@ -77,7 +77,7 @@ export class NodeModulesCheck {
         }
 
         const file = await readFileAsString(path);
-        const match = symbolsReview.reduce((acc, flag) => {
+        const match = charsForCheck.reduce((acc, flag) => {
           if (!acc && file.includes(flag)) {
             acc += `${flag}, `;
           }
@@ -95,8 +95,8 @@ export class NodeModulesCheck {
 
     glob(pattern, { debug: true }, async function (_, candidates) {
       const onlyFiles = candidates.filter(candidate => fs.lstatSync(candidate).isFile());
-      if (packagesReviewWhiteList) {
-        onlyFiles.push(...packagesReviewWhiteList);
+      if (extraPaths) {
+        onlyFiles.push(...extraPaths);
       }
       reader.setPaths(onlyFiles);
       await reader.applyMatchers();
